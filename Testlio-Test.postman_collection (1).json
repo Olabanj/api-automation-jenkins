@@ -1,0 +1,527 @@
+{
+	"info": {
+		"_postman_id": "d264716b-696c-407d-adad-967830d7d4ce",
+		"name": "Testlio-Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16602234",
+		"_collection_link": "https://warped-robot-772208.postman.co/workspace/7d664e01-d6ff-4bbc-b838-288fc9b6c002/collection/16602234-d264716b-696c-407d-adad-967830d7d4ce?action=share&creator=16602234&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "product-resources",
+			"item": [
+				{
+					"name": "Get the products/verify the result return 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://fakerapi.it/api/v1/products?_quantity=10",
+							"protocol": "https",
+							"host": [
+								"fakerapi",
+								"it"
+							],
+							"path": [
+								"api",
+								"v1",
+								"products"
+							],
+							"query": [
+								{
+									"key": "_quantity",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify that the result return net_proce",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Extract net_price\", function () {\r",
+									"    // Parse the response body as JSON\r",
+									"    var responseBody = pm.response.json();\r",
+									"\r",
+									"    // Extract the net_price value\r",
+									"    var netPrice = responseBody.data[0].net_price;\r",
+									"\r",
+									"    // Log the net_price value to the console\r",
+									"    console.log(\"Net Price: \" + netPrice);\r",
+									"\r",
+									"    // Check if the net_price value exists\r",
+									"    pm.expect(netPrice).to.exist;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://fakerapi.it/api/v1/products?_price_min=20.50&_price_max=10320.99",
+							"protocol": "https",
+							"host": [
+								"fakerapi",
+								"it"
+							],
+							"path": [
+								"api",
+								"v1",
+								"products"
+							],
+							"query": [
+								{
+									"key": "_price_min",
+									"value": "20.50"
+								},
+								{
+									"key": "_price_max",
+									"value": "10320.99"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify that the net_price has a  decimal value",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Parse the response body\r",
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"// Iterate over the data array\r",
+									"responseJson.data.forEach((item) => {\r",
+									"    // Get the net_price value and convert it to a string\r",
+									"    const net_price = item.net_price.toString();\r",
+									"\r",
+									"    // Check if the net_price has the desired decimal value\r",
+									"    pm.test(`Verify net_price has decimal value ${net_price}`, () => {\r",
+									"        pm.expect(net_price).to.include('.');\r",
+									"    });\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://fakerapi.it/api/v1/products?_price_min=20.50&_price_max=10320.99",
+							"protocol": "https",
+							"host": [
+								"fakerapi",
+								"it"
+							],
+							"path": [
+								"api",
+								"v1",
+								"products"
+							],
+							"query": [
+								{
+									"key": "_price_min",
+									"value": "20.50"
+								},
+								{
+									"key": "_price_max",
+									"value": "10320.99"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "person-resources",
+			"item": [
+				{
+					"name": "Verify that no records of people under the age of 18 years",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Parse the response body as JSON\r",
+									"var jsonData = pm.response.json();\r",
+									"\r",
+									"// Initialize a variable to keep track of underage records count\r",
+									"var underageCount = 0;\r",
+									"\r",
+									"// Loop through each data object in the response\r",
+									"jsonData.data.forEach(function(person) {\r",
+									"    // Extract the birthday from the person object\r",
+									"    var birthday = new Date(person.birthday);\r",
+									"    \r",
+									"    // Calculate the age based on the current date\r",
+									"    var age = new Date().getFullYear() - birthday.getFullYear();\r",
+									"    \r",
+									"    // Check if the age is less than 18\r",
+									"    if (age < 18) {\r",
+									"        underageCount++;\r",
+									"    }\r",
+									"});\r",
+									"\r",
+									"// Verify that no records of people under 18 exist\r",
+									"pm.test(\"No records of people under 18\", function() {\r",
+									"    pm.expect(underageCount).to.equal(0, \"Expected no records of people under 18, but found \" + underageCount + \": \" + JSON.stringify(jsonData.data));\r",
+									"});\r",
+									"\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://fakerapi.it/api/v1/persons?_gender=female&_birthday_start=1994-02-09&_birthday_end=2018-10-09",
+							"protocol": "https",
+							"host": [
+								"fakerapi",
+								"it"
+							],
+							"path": [
+								"api",
+								"v1",
+								"persons"
+							],
+							"query": [
+								{
+									"key": "_gender",
+									"value": "female"
+								},
+								{
+									"key": "_birthday_start",
+									"value": "1994-02-09"
+								},
+								{
+									"key": "_birthday_end",
+									"value": "2018-10-09"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Companies",
+			"item": [
+				{
+					"name": "get-companies",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://fakerapi.it/api/v1/companies",
+							"protocol": "https",
+							"host": [
+								"fakerapi",
+								"it"
+							],
+							"path": [
+								"api",
+								"v1",
+								"companies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test the error handling of the API by sending an invalid request.",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"pm.test(\"Validate the status\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.status).to.eql(\"Not found\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://fakerapi.it/api/v1/compan",
+							"protocol": "https",
+							"host": [
+								"fakerapi",
+								"it"
+							],
+							"path": [
+								"api",
+								"v1",
+								"compan"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test the search functionality by querying for a specific company name.",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response body contains expected total limit\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    var limitNumber = \"10\"; // Replace with the expected company name\r",
+									"    pm.expect(jsonData.total).to.eql(10);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://fakerapi.it/api/v1/companies?_limit=10",
+							"protocol": "https",
+							"host": [
+								"fakerapi",
+								"it"
+							],
+							"path": [
+								"api",
+								"v1",
+								"companies"
+							],
+							"query": [
+								{
+									"key": "website_",
+									"value": "http://parisian.com",
+									"disabled": true
+								},
+								{
+									"key": "_limit",
+									"value": "10"
+								},
+								{
+									"key": "name",
+									"value": "O'Connell-Weimann",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Validate that the API response includes the required fields for each company.",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response includes required fields for each company\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    var companies = jsonData.data; // Assuming the response contains a \"data\" property that holds the array of companies\r",
+									"\r",
+									"    // Define the required fields for each company\r",
+									"    var requiredFields = [\"phone\", \"name\", \"addresses\",\"website\"];\r",
+									"\r",
+									"    // Iterate through each company in the response\r",
+									"    for (var i = 0; i < companies.length; i++) {\r",
+									"        var company = companies[i];\r",
+									"        \r",
+									"        // Iterate through the required fields\r",
+									"        for (var j = 0; j < requiredFields.length; j++) {\r",
+									"            var field = requiredFields[j];\r",
+									"            \r",
+									"            // Assert that the company object has the required field\r",
+									"            pm.expect(company).to.have.property(field);\r",
+									"        }\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://fakerapi.it/api/v1/companies",
+							"protocol": "https",
+							"host": [
+								"fakerapi",
+								"it"
+							],
+							"path": [
+								"api",
+								"v1",
+								"companies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check the response time of the API for retrieving company information.",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://fakerapi.it/api/v1/companies",
+							"protocol": "https",
+							"host": [
+								"fakerapi",
+								"it"
+							],
+							"path": [
+								"api",
+								"v1",
+								"companies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Validate that the API supports filtering and returns companies based on certain criteria.",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"API supports filtering and returns companies based on criteria\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    var companies = jsonData.data; // Assuming the response contains a \"data\" property that holds the array of companies\r",
+									"\r",
+									"    // Define the filter criteria\r",
+									"    var filterCriteria = {\r",
+									"        name: \"Berge Group\", // Example: Filter companies name\r",
+									"        vat: \"50519841\" // Example: Filter companies vat\r",
+									"    };\r",
+									"\r",
+									"    // Iterate through each company in the response\r",
+									"    for (var i = 0; i < companies.length; i++) {\r",
+									"        var company = companies[i];\r",
+									"\r",
+									"        // Validate if the company matches the filter criteria\r",
+									"        var isMatch = true;\r",
+									"        for (var key in filterCriteria) {\r",
+									"            if (company[key] !== filterCriteria[key]) {\r",
+									"                isMatch = false;\r",
+									"                break;\r",
+									"            }\r",
+									"        }\r",
+									"\r",
+									"        // Assert that the company meets the specified filter criteria\r",
+									"        pm.expect(isMatch).to.eql(false);\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://fakerapi.it/api/v1/companies?zipcode=75695-1186",
+							"protocol": "https",
+							"host": [
+								"fakerapi",
+								"it"
+							],
+							"path": [
+								"api",
+								"v1",
+								"companies"
+							],
+							"query": [
+								{
+									"key": "zipcode",
+									"value": "75695-1186"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
